@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRIP PLANNER</title>
+    <style>
+        h1 {
+            font: bold;
+            font-family: Arial, Helvetica, sans-serif;
+            font-style: italic;
+            text-align: center;
+        }
+
+        td {
+            font-style: italic;
+            font: 300;
+            text-align: center;
+        }
+
+        #expenses {
+            margin-left: 10vh;
+            margin-top: 2vh;
+            width: 80vh;
+            height: 10vh;
+        }
+
+        th {
+            font: bold;
+            text-align: start;
+        }
+
+        #total {
+            margin-top: 5vh;
+            width: 80vh;
+            margin-left: 10vh;
+            height: 10vh;
+        }
+
+        button {
+            margin-left: 75vh;
+            height: 5vh;
+            width: 15vh;
+            background-color: white;
+            cursor: pointer;
+            border-radius: 10px;
+            font-size: small;
+            font-weight: bold;
+            color: black;
+        }
+
+        input[type="text"] {
+            border: none;
+            font-size: small;
+            font-weight: bold;
+
+        }
+        input[type="number"] {
+               font-size: small;
+               font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1><u>TRIP PLANNER</u></h1>
+
+    <label for="budget"><b><i>Total budget/head:</i></b></label>
+    <input type="number" id="budget" oninput="calculateTotalAndRemaining()">
+    <br>
+    <br>
+
+    <label for="ppl"><b><i>Number of people:</i></b></label>
+    <input type="number" id="numPpl" oninput="calculateAllRows()">
+    <br>
+    <br>
+    <br>
+    <button id="addRow" onclick="addExpense()">Add expenses</button>
+
+    <table border="1" id="expenses">
+        <thead>
+            <tr>
+                <td><u>Expenses</u></td>
+                <td><u>Cost/head</u></td>
+                <td><u>Total Cost</u></td>
+            </tr>
+        </thead>
+        <tbody id="expenseBody">
+            <tr>
+                <td><input type="text" ></td>
+                <td><input type="number" oninput="calculateRowTotal(this)"></td>
+                <td><input type="text" readonly></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table border="1" id="total">
+        <tbody>
+            <tr>
+                <th>Total</th>
+                <td><input type="text" id="totalbud" readonly></td>
+            </tr>
+            <tr>
+                <th>Remaining</th>
+                <td><input type="text" id="remain" readonly></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        // add  new expense row
+        function addExpense() {
+            var table = document.getElementById("expenseBody");
+            var newRow = table.insertRow();
+
+            // Insert new cells 
+            var cell1 = newRow.insertCell(0);
+            var cell2 = newRow.insertCell(1);
+            var cell3 = newRow.insertCell(2);
+
+            cell1.innerHTML = '<input type="text" >';
+            cell2.innerHTML = '<input type="number"  oninput="calculateRowTotal(this)">';
+            cell3.innerHTML = '<input type="text" readonly>';
+        }
+
+        // calculate total cost for the row
+        function calculateRowTotal(element) {
+            var row = element.parentNode.parentNode;
+            var costPerHead = parseFloat(row.cells[1].getElementsByTagName('input')[0].value);
+            var numPpl = parseInt(document.getElementById('numPpl').value);
+            if (!isNaN(costPerHead) && !isNaN(numPpl)) {
+                var totalCost = costPerHead * numPpl;
+                row.cells[2].getElementsByTagName('input')[0].value = totalCost.toFixed(2);
+                calculateTotalAndRemaining();
+            }
+        }
+
+        // calculate the total and remaining budget
+        function calculateTotalAndRemaining() {
+            var total = 0;
+            var rows = document.getElementById("expenseBody").rows;
+
+            // Sum all row
+            for (var i = 0; i < rows.length; i++) {
+                var totalCost = parseFloat(rows[i].cells[2].getElementsByTagName('input')[0].value);
+                if (!isNaN(totalCost)) {
+                    total += totalCost;
+                }
+            }
+
+            var budgetPerHead = parseFloat(document.getElementById('budget').value) || 0; // default value if nothing
+           var numPpl = parseInt(document.getElementById('numPpl').value) || 1; // Default to 1 if no value entered
+
+    // Calculate total budget 
+         var totalBudget = budgetPerHead * numPpl;
+
+    // Calculate remaining 
+         var remaining = totalBudget - total;
+
+    // if  negative values occur
+         if (remaining < 0) {
+            remaining = 0;
+    }
+
+    // Update the total and remaining fields
+    document.getElementById('totalbud').value = total.toFixed(2);
+    document.getElementById('remain').value = remaining.toFixed(2);
+        }
+// recalculate totals when updated
+function calculateAllRows() {
+    var rows = document.getElementById("expenseBody").rows;
+
+    // recalculate for all rows when updated
+    for (var i = 0; i < rows.length; i++) {
+        var costInput = rows[i].cells[1].getElementsByTagName('input')[0];
+        calculateRowTotal(costInput);
+    }
+}
+        
+    </script>
+
+</body>
+</html>
